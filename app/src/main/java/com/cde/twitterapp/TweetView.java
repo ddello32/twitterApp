@@ -4,8 +4,9 @@ import android.content.Context;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.cde.twitterapp.db.TweetDbEntity;
+
 import org.androidannotations.annotations.EViewGroup;
-import org.androidannotations.annotations.OrmLiteDao;
 import org.androidannotations.annotations.ViewById;
 
 /**
@@ -25,8 +26,8 @@ public class TweetView extends LinearLayout {
         super(context);
     }
 
-    public void bind(Tweet_Entity tweet){
-        authorName.setText(tweet.authorEntity.userName + " said:");
-        tweetContent.setText(tweet.content);
+    public void bind(TweetDbEntity tweet){
+        authorName.setText(tweet.getAuthorEntity().getUserName() + " said:");
+        tweetContent.setText(tweet.getText());
     }
 }
