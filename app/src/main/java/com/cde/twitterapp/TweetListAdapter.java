@@ -14,6 +14,7 @@ import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
+import org.androidannotations.annotations.UiThread;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,22 +24,15 @@ import java.util.Collection;
  */
 @EBean
 public class TweetListAdapter extends BaseAdapter{
-    ArrayList<TweetDbEntity> tweets;
+    ArrayList<TweetDbEntity> tweets = new ArrayList<TweetDbEntity>();;
 
     @RootContext
     Context context;
 
-    @Bean
-    TweetBO tweetBO;
-
-    @AfterInject
-    public void initAdapter(){
-        tweets = new ArrayList<TweetDbEntity>(tweetBO.getAllTweets());
-    }
-
+    @UiThread
     public void setTweets(Collection<TweetDbEntity> tweets){
-        //tweets.clear();
-        //tweets.addAll(tweets);
+        this.tweets = new ArrayList<TweetDbEntity>(tweets);
+        this.notifyDataSetChanged();
     }
 
     @Override

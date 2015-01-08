@@ -11,6 +11,8 @@ import android.util.Log;
 
 import com.cde.twitterapp.db.UserDbEntity;
 
+import org.androidannotations.handler.BackgroundHandler;
+
 /**
  * Created by dello on 07/01/15.
  */

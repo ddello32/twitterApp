@@ -27,6 +27,9 @@ public class TweetView extends LinearLayout {
     TextView tweetContent;
 
     @ViewById
+    TextView tweetDate;
+
+    @ViewById
     ImageView profileImage;
 
     public TweetView(Context context) {
@@ -36,6 +39,7 @@ public class TweetView extends LinearLayout {
     public void bind(TweetDbEntity tweet){
         authorName.setText(tweet.getAuthorEntity().getUserName());
         tweetContent.setText(tweet.getText());
+        tweetDate.setText(tweet.getDate());
         profileImage.setImageURI(Uri.parse(tweet.getAuthorEntity().getProfile_image_uri()));
     }
 }

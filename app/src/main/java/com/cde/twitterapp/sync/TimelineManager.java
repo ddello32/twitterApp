@@ -11,6 +11,7 @@ import com.cde.twitterapp.rest.TweetRestEntity;
 import com.cde.twitterapp.rest.TwitterApiAuth;
 import com.cde.twitterapp.rest.TwitterRestClient;
 import com.cde.twitterapp.rest.UserRestEntity;
+import com.cde.twitterapp.TwitterAppPreferences_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Background;
@@ -22,6 +23,8 @@ import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.SupposeBackground;
 import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.annotations.rest.RestService;
+import org.androidannotations.annotations.sharedpreferences.Pref;
+import org.androidannotations.api.BackgroundExecutor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +37,7 @@ import java.util.List;
 //TODO: Turn this into a content provider
 @EBean(scope = EBean.Scope.Singleton)
 public class TimelineManager {
+    static final int REQUISITION_PAGE_SIZE = 500;
     @StringRes(R.string.consumerKey)
     static String consumerKey;
     @StringRes(R.string.consumerSecret)
@@ -45,7 +49,10 @@ public class TimelineManager {
     @RestService
     TwitterRestClient restClient;
 
-    ArrayList<Long> users = new ArrayList<Long>();
+    @Pref
+    TwitterAppPreferences_ prefs;
+
+    ArrayList<String> users = new ArrayList<String>();
 
     @AfterInject
     @Background(serial = "REST")
@@ -55,16 +62,46 @@ public class TimelineManager {
             authHandler.initialize(consumerKey, consumerSecret);
             restClient.setAuthentication(authHandler);
         }
-        //TODO Erase this and make something that actually works
-        users.add(new Long(37565276));
     }
 
-    private List<TweetRestEntity> recoverUserTimeline(long userId, long sinceId){
-        //TODO: Paginate through requests instead of loading it all.
-        return restClient.getUserTimeline(userId, sinceId);
+    @AfterInject
+    void notifyUpddateUser(){
+        users.clear();
+        for(String userName : prefs.following().get()){
+            users.add(userName);
+        }
     }
 
-    @Background(serial = "REST")
+    private void recoverUserTimeline(long userId, long sinceId){
+        List<TweetRestEntity> page = restClient.getUserTimeline(userId, sinceId, REQUISITION_PAGE_SIZE);
+        long max_id = page.get(page.size() - 1).getId() - 1;
+        while(page.size() != 0){
+            for(TweetRestEntity tweet : page){
+                //TODO: Turn this into a batch operation
+                UserRestEntity userRest = tweet.getAuthor();
+                UserDbEntity userDb = new UserDbEntity(userRest.getId(), userRest.getName(), userRest.getScreenName(), userRest.getProfile_image());
+                tweetBO.addTweet(new TweetDbEntity(tweet.getId(), tweet.getText(), userDb, tweet.getDate()));
+            }
+            restClient.getUserTimeline(userId, sinceId, REQUISITION_PAGE_SIZE, max_id);
+            max_id = page.get(page.size() - 1).getId() - 1;
+        }
+    }
+
+    private void recoverUserTimeline(String userName, long sinceId){
+        List<TweetRestEntity> page = restClient.getUserTimeline(userName, sinceId, REQUISITION_PAGE_SIZE);
+        long max_id;
+        while(page.size() != 0){
+            max_id = page.get(page.size() - 1).getId() - 1;
+            for(TweetRestEntity tweet : page){
+                //TODO: Turn this into a batch operation
+                UserRestEntity userRest = tweet.getAuthor();
+                UserDbEntity userDb = new UserDbEntity(userRest.getId(), userRest.getName(), userRest.getScreenName(), userRest.getProfile_image());
+                tweetBO.addTweet(new TweetDbEntity(tweet.getId(), tweet.getText(), userDb, tweet.getDate()));
+            }
+            restClient.getUserTimeline(userName, sinceId, REQUISITION_PAGE_SIZE, max_id);
+        }
+    }
+
     public void updateTimeline(long userId){
         Collection<TweetDbEntity> timeline = tweetBO.getTweetsFromAuthor(userId);
         long lastId;
@@ -73,20 +110,49 @@ public class TimelineManager {
             lastId = iterator.next().getId();
         }
         else lastId = 1;
-        List<TweetRestEntity> newTweets = recoverUserTimeline(userId, lastId);
-        //TODO: Turn this into a batch operation
-        for(TweetRestEntity tweet : newTweets){
-            UserRestEntity userRest = tweet.getAuthor();
-            UserDbEntity userDb = new UserDbEntity(userRest.getId(), userRest.getName(), userRest.getScreenName(), userRest.getProfile_image());
-            tweetBO.addTweet(new TweetDbEntity(tweet.getId(), tweet.getText(), userDb, tweet.getDate()));
-        }
+        recoverUserTimeline(userId, lastId);
         //TODO Notify lists of database update
+    }
+
+    public void updateTimeline(String userName){
+        Collection<TweetDbEntity> timeline = tweetBO.getTweetsFromAuthor(userName);
+        long lastId;
+        if(timeline != null && timeline.size() != 0){
+            Iterator<TweetDbEntity> iterator = timeline.iterator();
+            lastId = iterator.next().getId();
+        }
+        else lastId = 1;
+        recoverUserTimeline(userName, lastId);
+        //TODO Notify lists of database update
+    }
+
+    public void updateUser(long userId){
+        UserDbEntity user = tweetBO.getUser(userId);
+        if(user == null){
+            UserRestEntity restUser = restClient.getUser(userId);
+            tweetBO.addAuthor(new UserDbEntity(restUser.getId(), restUser.getName(), restUser.getScreenName(), restUser.getProfile_image()));
+        }
+    }
+
+    public void updateUser(String screenName){
+        UserDbEntity user = tweetBO.getUser(screenName);
+        if(user == null){
+            UserRestEntity restUser = restClient.getUser(screenName);
+            tweetBO.addAuthor(new UserDbEntity(restUser.getId(), restUser.getName(), restUser.getScreenName(), restUser.getProfile_image()));
+        }
     }
 
     @Background(serial = "REST")
     public void updateDB(){
-        Log.e(this.getClass().getName(), "UpdateDB " + users.size() + authHandler);
-        for(Long user : users){
+        users.clear();
+        for(String userName : prefs.following().get()){
+            Log.e("updateDB", userName);
+            users.add(userName);
+        }
+        for(String user : users){
+            updateUser(user);
+        }
+        for(String user : users){
             updateTimeline(user);
         }
     }

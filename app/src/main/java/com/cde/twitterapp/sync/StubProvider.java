@@ -10,6 +10,9 @@ import android.net.Uri;
  * all methods
  */
 public class StubProvider extends ContentProvider {
+    public static final String USER_MIME_TYPE = "com.cde.twitterapp.usermime";
+    public static final String TWEET_MIME_TYPE = "com.cde.twitterapp.tweetmime";
+
     /*
      * Always return true, indicating that the
      * provider loaded correctly.
@@ -45,6 +48,7 @@ public class StubProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         return null;
     }
+
     /*
      * delete() always returns "no rows affected" (0)
      */
@@ -52,6 +56,7 @@ public class StubProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         return 0;
     }
+
     /*
      * update() always returns "no rows affected" (0)
      */

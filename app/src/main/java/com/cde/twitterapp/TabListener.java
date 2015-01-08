@@ -13,18 +13,15 @@ import com.cde.twitterapp.db.UserDbEntity;
 public class TabListener<T extends TimelineTabFragment_> implements ActionBar.TabListener {
     private TimelineTabFragment_ mFragment;
     private final Activity mActivity;
-    private final String mTag;
     private final Class<T> mClass;
     private final UserDbEntity user;
 
     /** Constructor used each time a new tab is created.
      * @param activity  The host Activity, used to instantiate the fragment
-     * @param tag  The identifier tag for the fragment
      * @param clz  The fragment's Class, used to instantiate the fragment
      */
-    public TabListener(Activity activity, String tag, Class<T> clz, UserDbEntity user) {
+    public TabListener(Activity activity, Class<T> clz, UserDbEntity user) {
         mActivity = activity;
-        mTag = tag;
         mClass = clz;
         this.user = user;
     }
@@ -37,7 +34,7 @@ public class TabListener<T extends TimelineTabFragment_> implements ActionBar.Ta
             // If not, instantiate and add it to the activity
             mFragment = (TimelineTabFragment_) Fragment.instantiate(mActivity, mClass.getName());
             mFragment.setUser(user);
-            ft.add(android.R.id.content, mFragment, mTag);
+            ft.add(android.R.id.content, mFragment, user.getUserName());
         } else {
             // If it exists, simply attach it in order to show it
             ft.attach(mFragment);

@@ -38,6 +38,19 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/profileImage"
             android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Small Text"
+            android:id="@+id/tweetDate"
+            android:textStyle="italic"
+            android:layout_below="@+id/tweetContent"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:textColor="#ff000000" />
     </RelativeLayout>
 
 </LinearLayout>

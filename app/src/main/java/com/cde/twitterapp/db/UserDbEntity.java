@@ -5,11 +5,13 @@ import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 
+import java.io.Serializable;
+
 /**
  * Created by dello on 31/12/14.
  * Just a test model. Should change once using twitter api
  */
-public class UserDbEntity{
+public class UserDbEntity implements Serializable{
     static final String ID_COLUMN_NAME = "id";
     static final String NAME_COLUMN_NAME = "name";
     static final String USERNAME_COLUMN_NAME = "username";
@@ -24,7 +26,7 @@ public class UserDbEntity{
     @DatabaseField(columnName = NAME_COLUMN_NAME)
     private String name;
 
-    @DatabaseField(columnName = USERNAME_COLUMN_NAME)
+    @DatabaseField(columnName = USERNAME_COLUMN_NAME, unique = true)
     private String userName;
 
     @DatabaseField(columnName = URL_COLUMN_NAME)
@@ -36,13 +38,20 @@ public class UserDbEntity{
     @DatabaseField(columnName = IMAGE_URI_COLUMN_NAME)
     private String profile_image_uri;
 
-    @ForeignCollectionField(orderColumnName = TweetDbEntity.ID_COLUMN_NAME, orderAscending = false, eager = true)
+    @ForeignCollectionField(orderColumnName = TweetDbEntity.ID_COLUMN_NAME, orderAscending = false)
     private ForeignCollection<TweetDbEntity> tweets;
 
     public UserDbEntity(){
         //Empty constructor needed by ORMLITE
     }
 
+    /**
+     *
+     * @param id
+     * @param name
+     * @param userName
+     * @param profile_image_url
+     */
     public UserDbEntity(long id, String name, String userName, String profile_image_url){
         this.setId(id);
         this.setName(name);
