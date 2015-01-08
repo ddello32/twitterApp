@@ -14,7 +14,9 @@ public class UserDbEntity{
     static final String NAME_COLUMN_NAME = "name";
     static final String USERNAME_COLUMN_NAME = "username";
     static final String URL_COLUMN_NAME = "url";
-    static final String IMAGE_URL_COLUMN_NAME = "profile_image";
+    static final String IMAGE_URL_COLUMN_NAME = "profile_image_url";
+    static final String IMAGE_URI_COLUMN_NAME = "profile_image_uri";
+
 
     @DatabaseField(id = true, columnName = ID_COLUMN_NAME)
     private long id;
@@ -29,7 +31,10 @@ public class UserDbEntity{
     private String url;
 
     @DatabaseField(columnName = IMAGE_URL_COLUMN_NAME)
-    private String profile_image;
+    private String profile_image_url;
+
+    @DatabaseField(columnName = IMAGE_URI_COLUMN_NAME)
+    private String profile_image_uri;
 
     @ForeignCollectionField(orderColumnName = TweetDbEntity.ID_COLUMN_NAME, orderAscending = false, eager = true)
     private ForeignCollection<TweetDbEntity> tweets;
@@ -38,11 +43,11 @@ public class UserDbEntity{
         //Empty constructor needed by ORMLITE
     }
 
-    public UserDbEntity(long id, String name, String userName, String profile_image){
+    public UserDbEntity(long id, String name, String userName, String profile_image_url){
         this.setId(id);
         this.setName(name);
         this.setUserName(userName);
-        this.setProfile_image(profile_image);
+        this.setProfile_image_url(profile_image_url);
     }
 
     public long getId() {
@@ -77,12 +82,20 @@ public class UserDbEntity{
         this.url = url;
     }
 
-    public String getProfile_image() {
-        return profile_image;
+    public String getProfile_image_url() {
+        return profile_image_url;
     }
 
-    public void setProfile_image(String profile_image) {
-        this.profile_image = profile_image;
+    public void setProfile_image_url(String profile_image_url) {
+        this.profile_image_url = profile_image_url;
+    }
+
+    public String getProfile_image_uri() {
+        return profile_image_uri;
+    }
+
+    public void setProfile_image_uri(String profile_image_uri) {
+        this.profile_image_uri = profile_image_uri;
     }
 
     public ForeignCollection<TweetDbEntity> getTweets() {

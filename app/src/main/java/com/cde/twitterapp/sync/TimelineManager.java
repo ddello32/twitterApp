@@ -67,7 +67,6 @@ public class TimelineManager {
     @Background(serial = "REST")
     public void updateTimeline(long userId){
         Collection<TweetDbEntity> timeline = tweetBO.getTweetsFromAuthor(userId);
-        Log.e(this.getClass().getName(), "" + timeline.size());
         long lastId;
         if(timeline != null && timeline.size() != 0){
             Iterator<TweetDbEntity> iterator = timeline.iterator();

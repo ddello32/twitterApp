@@ -18,7 +18,7 @@ import org.androidannotations.annotations.EBean;
 @EBean
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME = "twitter_app.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     //RuntimeExceptionDao<TweetDbEntity, Integer> tweetDao;
     //RuntimeExceptionDao<UserDbEntity, Integer> authorDao;
