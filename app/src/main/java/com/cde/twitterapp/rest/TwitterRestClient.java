@@ -13,37 +13,33 @@ import java.util.List;
  */
 @Rest(rootUrl = "https://api.twitter.com/1.1/statuses/", converters = { MappingJackson2HttpMessageConverter.class },  interceptors = {LoggerInterceptor.class})
 public interface TwitterRestClient {
-    @Get("/user_timeline?user_id={id}")
+    @Get("/user_timeline?user_id={id}&since_id={since_id}")
     @RequiresAuthentication
-    List<TweetRestEntity> getUserTimeline(long id);
+    List<TweetRestEntity> getUserTimeline(long id, long since_id);
 
-    @Get("/user_timeline?screen_name={screenName}")
+    @Get("/user_timeline?screen_name={screenName}&since_id={since_id}")
     @RequiresAuthentication
-    List<TweetRestEntity> getUserTimeline(String screenName);
+    List<TweetRestEntity> getUserTimeline(String screenName, long since_id);
 
-    @Get("/user_timeline?user_id={id}&count={count}")
+    @Get("/user_timeline?user_id={id}&since_id={since_id}&count={count}")
     @RequiresAuthentication
-    List<TweetRestEntity> getUserTimeline(long id, int count);
+    List<TweetRestEntity> getUserTimeline(long id, long since_id, int count);
 
-    @Get("/user_timeline?screen_name={screenName}&count={count}")
+    @Get("/user_timeline?screen_name={screenName}&since_id={since_id}&count={count}")
     @RequiresAuthentication
-    List<TweetRestEntity> getUserTimeline(String screenName, int count);
+    List<TweetRestEntity> getUserTimeline(String screenName, long since_id, int count);
 
-    @Get("/user_timeline?user_id={id}&count={count}&max_id={max_id}")
+    @Get("/user_timeline?user_id={id}&since_id={since_id}&count={count}&max_id={max_id}")
     @RequiresAuthentication
-    List<TweetRestEntity> getUserTimeline(long id, int count, int max_id);
+    List<TweetRestEntity> getUserTimeline(long id, long since_id, int count, int max_id);
 
-    @Get("/user_timeline?screen_name={screenName}&count={count}&max_id={max_id}")
+    @Get("/user_timeline?screen_name={screenName}&since_id={since_id}&count={count}&max_id={max_id}")
     @RequiresAuthentication
-    List<TweetRestEntity> getUserTimeline(String screenName, int count, int max_id);
+    List<TweetRestEntity> getUserTimeline(String screenName, long since_id, int count, int max_id);
 
-    @Get("/user_timeline?user_id={id}&count={count}&max_id={max_id}&since_id={since_id}")
-    @RequiresAuthentication
-    List<TweetRestEntity> getUserTimeline(long id, int count, int max_id, int since_id);
-
-    @Get("/user_timeline?screen_name={screenName}&count={count}&max_id={max_id}&since_id={since_id}")
-    @RequiresAuthentication
-    List<TweetRestEntity> getUserTimeline(String screenName, int count, int max_id, int since_id);
-
+    /**
+     *
+     * @param authentication Needs to extend or be a initialized TwitterApiAuth... Can't change the signature due to AA and Rest
+     */
     void setAuthentication(HttpAuthentication authentication);
 }

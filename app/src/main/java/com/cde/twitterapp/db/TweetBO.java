@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.OrmLiteDao;
@@ -25,8 +26,11 @@ public class TweetBO {
         return authorDao.queryForSameId(author).getTweets();
     }
 
-    public Collection<TweetDbEntity> getTweetsFromAuthor(Integer id){
-        return authorDao.queryForId(id).getTweets();
+    public Collection<TweetDbEntity> getTweetsFromAuthor(long id){
+        //TODO See this long/int problem.
+        UserDbEntity author = authorDao.queryForId((int) id);
+        if(author == null) return null;
+        return author.getTweets();
     }
 
     public Collection<TweetDbEntity> searchForContent(String content){
@@ -49,5 +53,24 @@ public class TweetBO {
             ret = null;
         }
         return ret;
+    }
+
+    @Background(serial = "DATABASE")
+    public void addTweets(Collection<TweetDbEntity> tweets){
+        //TODO: Make this a batch operation.
+        for(TweetDbEntity tweet : tweets){
+            authorDao.createIfNotExists(tweet.getAuthorEntity());
+            tweetDao.createIfNotExists(tweet);
+        }
+    }
+
+    @Background(serial = "DATABASE")
+    public void addTweet(TweetDbEntity tweet){
+        authorDao.createIfNotExists(tweet.getAuthorEntity());
+        tweetDao.createIfNotExists(tweet);
+    }
+
+    public UserDbEntity getUser(long userId){
+        return authorDao.queryForId((int) userId);
     }
 }

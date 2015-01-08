@@ -7,26 +7,24 @@ import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.rest.RestService;
 import org.springframework.http.HttpAuthentication;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-
 /**
  * Created by dello on 06/01/15.
  */
 @EBean
 public class TwitterApiAuth extends HttpAuthentication {
-
+    //TODO Move part of this to authenticator
     @RootContext
     Context context;
-    private String consumerKey = "0PHGAdzLcPRIODJWGb9qBZqP0";
-    private String consumerSecret = "XuW9tzhXqW7AXEfP0YMbYyO1lnTHA6eRfjnFAbwH0qX0pQlLBx";
+    private String consumerKey;
+    private String consumerSecret;
     @RestService
     TwitterAuthRestClient authClient;
     private TokenAuthEntity bearerToken;
+    private boolean initialized = false;
 
     public void initialize(String consumerKey, String consumerSecret) {
         Log.e("TwitterAuth", "initialize");
@@ -37,9 +35,9 @@ public class TwitterApiAuth extends HttpAuthentication {
         MultiValueMap<String, String> requestArgs = new LinkedMultiValueMap<String, String>();
         requestArgs.add("grant_type", "client_credentials");
         bearerToken =  authClient.requestToken(requestArgs);
+        if(bearerToken == null || !bearerToken.tokenType.equals("bearer")) throw new RuntimeException("Authentication Error");
         Log.d("TwitterAuth", "Got token:" + bearerToken.accessToken);
-        if(!bearerToken.tokenType.equals("bearer")) throw new RuntimeException("AuthError");
-        Log.d("TwitterAuth", "Got token:" + bearerToken.accessToken);
+        initialized = true;
     }
     /**
      * @return the value for the 'Authorization' HTTP header.
@@ -63,5 +61,9 @@ public class TwitterApiAuth extends HttpAuthentication {
             return null;
         }
         return s;
+    }
+
+    public boolean isInitialized(){
+        return initialized;
     }
 }

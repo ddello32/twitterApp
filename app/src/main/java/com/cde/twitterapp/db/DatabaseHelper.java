@@ -2,13 +2,11 @@ package com.cde.twitterapp.db;
 
 import android.content.Context;
 import java.sql.SQLException;
-import java.util.Date;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
-import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
@@ -19,19 +17,16 @@ import org.androidannotations.annotations.EBean;
  */
 @EBean
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
-
-    // name of the database file for your application -- change to something appropriate for your app
     private static final String DATABASE_NAME = "twitter_app.db";
-    // any time you make changes to your database objects, you may have to increase the database version
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 4;
 
-    RuntimeExceptionDao<TweetDbEntity, Integer> tweetDao;
-    RuntimeExceptionDao<UserDbEntity, Integer> authorDao;
+    //RuntimeExceptionDao<TweetDbEntity, Integer> tweetDao;
+    //RuntimeExceptionDao<UserDbEntity, Integer> authorDao;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        authorDao = getRuntimeExceptionDao(UserDbEntity.class);
-        tweetDao = getRuntimeExceptionDao(TweetDbEntity.class);
+        //authorDao = getRuntimeExceptionDao(UserDbEntity.class);
+        //tweetDao = getRuntimeExceptionDao(TweetDbEntity.class);
     }
 
 
@@ -40,19 +35,9 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             TableUtils.createTable(connectionSource, TweetDbEntity.class);
             TableUtils.createTable(connectionSource, UserDbEntity.class);
-
-            //Add a couple of rows for testing
-            UserDbEntity Daniel = new UserDbEntity(1,"Daniel", "ddello32", null);
-            UserDbEntity Renato = new UserDbEntity(2,"Renato", "rdrusso", null);
-            authorDao.create(Daniel);
-            authorDao.create(Renato);
-            tweetDao.create(new TweetDbEntity(1,"Teste", Daniel, new Date(2012, 1, 4)));
-            tweetDao.create(new TweetDbEntity(2,"Teste2", Daniel, new Date(2012, 1, 5)));
-            tweetDao.create(new TweetDbEntity(3,"Teste re", Renato, new Date(2012, 1, 6)));
-            tweetDao.create(new TweetDbEntity(4,"Teste2 re", Renato, new Date(2012, 1, 7)));
-            Log.e(DatabaseHelper.class.getName(), "Populated database");
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "Can't create database", e);
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -67,6 +52,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(connectionSource, UserDbEntity.class, true);
         } catch (SQLException e) {
             Log.e(DatabaseHelper.class.getName(), "Can't delete database", e);
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         onCreate(database, connectionSource);
@@ -78,8 +64,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void close() {
         super.close();
-        tweetDao = null;
-        authorDao = null;
+        //tweetDao = null;
+        //authorDao = null;
     }
 }
 

@@ -55,7 +55,7 @@ public class UserRestEntity implements Serializable {
         return profile_image;
     }
 
-    public void setProfile_image(String profile_image) {
+    void setProfile_image(String profile_image) {
         this.profile_image = profile_image;
     }
 

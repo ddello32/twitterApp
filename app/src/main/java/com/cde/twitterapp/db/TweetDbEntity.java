@@ -28,13 +28,20 @@ public class TweetDbEntity{
     private UserDbEntity authorEntity;
 
     @DatabaseField(columnName = DATE_COLUMN_NAME)
-    private Date date;
+    private String date;
 
     public TweetDbEntity(){
         //Empty constructor needed by ORMLITE
     }
 
-    public TweetDbEntity(long id, String text, UserDbEntity authorEntity, Date date){
+    /**
+     *
+     * @param id
+     * @param text
+     * @param authorEntity
+     * @param date
+     */
+    public TweetDbEntity(long id, String text, UserDbEntity authorEntity, String date){
         this.setId(id);
         this.setText(text);
         this.setAuthorEntity(authorEntity);
@@ -65,11 +72,11 @@ public class TweetDbEntity{
         this.authorEntity = authorEntity;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
 }

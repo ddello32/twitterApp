@@ -1,9 +1,11 @@
 package com.cde.twitterapp;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListAdapter;
 
 import com.cde.twitterapp.db.TweetBO;
 import com.cde.twitterapp.db.TweetDbEntity;
@@ -20,24 +22,23 @@ import java.util.Collection;
  * Created by dello on 01/01/15.
  */
 @EBean
-public class TweetListAdapter extends BaseAdapter {
-
-    @Bean
-    TweetBO tweetBo;
+public class TweetListAdapter extends BaseAdapter{
+    ArrayList<TweetDbEntity> tweets;
 
     @RootContext
     Context context;
 
-    ArrayList<TweetDbEntity> tweets;
+    @Bean
+    TweetBO tweetBO;
 
     @AfterInject
-    void initAdapter() {
-        tweets = new ArrayList<TweetDbEntity>(tweetBo.getAllTweets());
+    public void initAdapter(){
+        tweets = new ArrayList<TweetDbEntity>(tweetBO.getAllTweets());
     }
 
     public void setTweets(Collection<TweetDbEntity> tweets){
-        tweets.clear();
-        tweets.addAll(tweets);
+        //tweets.clear();
+        //tweets.addAll(tweets);
     }
 
     @Override

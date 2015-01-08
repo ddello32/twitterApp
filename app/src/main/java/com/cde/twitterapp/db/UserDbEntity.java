@@ -23,17 +23,15 @@ public class UserDbEntity{
     private String name;
 
     @DatabaseField(columnName = USERNAME_COLUMN_NAME)
-    @JsonProperty("screen_name")
     private String userName;
 
     @DatabaseField(columnName = URL_COLUMN_NAME)
     private String url;
 
     @DatabaseField(columnName = IMAGE_URL_COLUMN_NAME)
-    @JsonProperty("profile_image_url")
     private String profile_image;
 
-    @ForeignCollectionField
+    @ForeignCollectionField(orderColumnName = TweetDbEntity.ID_COLUMN_NAME, orderAscending = false, eager = true)
     private ForeignCollection<TweetDbEntity> tweets;
 
     public UserDbEntity(){

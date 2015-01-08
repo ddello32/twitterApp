@@ -6,4 +6,6 @@
     <string name="action_settings">Settings</string>
     <string name="consumerKey">0PHGAdzLcPRIODJWGb9qBZqP0</string>
     <string name="consumerSecret">XuW9tzhXqW7AXEfP0YMbYyO1lnTHA6eRfjnFAbwH0qX0pQlLBx</string>
+    <string name="action_update">Update</string>
+    <string name="account_type">com.cde.test</string>
 </resources>
