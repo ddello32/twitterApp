@@ -5,6 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 
+import com.cde.twitterapp.db.TweetDBManager;
+import com.cde.twitterapp.db.TweetDbEntity;
 import com.cde.twitterapp.db.UserDbEntity;
 
 import java.util.Observable;
@@ -17,13 +19,13 @@ public class TabListener<T extends TimelineTabFragment_> implements ActionBar.Ta
     private final Activity mActivity;
     private final Class<T> mClass;
     private final UserDbEntity user;
-    private final Observable observable;
+    private final TweetDBManager observable;
 
     /** Constructor used each time a new tab is created.
      * @param activity  The host Activity, used to instantiate the fragment
      * @param clz  The fragment's Class, used to instantiate the fragment
      */
-    public TabListener(Activity activity, Class<T> clz, UserDbEntity user, Observable observable) {
+    public TabListener(Activity activity, Class<T> clz, UserDbEntity user, TweetDBManager observable) {
         mActivity = activity;
         mClass = clz;
         this.user = user;

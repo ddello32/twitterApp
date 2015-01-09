@@ -32,6 +32,7 @@ public class TwitterApiAuth extends HttpAuthentication {
         this.consumerSecret = consumerSecret;
         authClient.setHttpBasicAuth(consumerKey, consumerSecret);
         authClient.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+        authClient.setRestErrorHandler(new ErrorHandler());
         MultiValueMap<String, String> requestArgs = new LinkedMultiValueMap<String, String>();
         requestArgs.add("grant_type", "client_credentials");
         bearerToken =  authClient.requestToken(requestArgs);

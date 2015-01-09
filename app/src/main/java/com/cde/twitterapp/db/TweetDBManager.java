@@ -22,8 +22,10 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by dello on 01/01/15.
@@ -100,16 +102,16 @@ public class TweetDBManager extends Observable{
     public void addTweets(Collection<TweetDbEntity> tweets) {
         //TODO: Make this a batch operation.
         for(TweetDbEntity tweet : tweets){
-            addTweet(tweet);
+            tweetDao.createIfNotExists(tweet);
         }
-        triggerObservers(-1);
+        triggerObservers(null);
     }
 
     @Background(serial = "DATABASE")
     public void addTweet(TweetDbEntity tweet){
         //addAuthor(tweet.getAuthorEntity());
         tweetDao.createIfNotExists(tweet);
-        //triggerObservers(-1);
+        triggerObservers(null);
     }
 
     @Background(serial = "DATABASE")
@@ -144,7 +146,7 @@ public class TweetDBManager extends Observable{
         }
         author.setProfile_image_uri(uri);
         authorDao.create(author);
-        triggerObservers(author.getId());
+        triggerObservers(author.getUserName());
     }
 
     public UserDbEntity getUser(long userId){
@@ -164,9 +166,11 @@ public class TweetDBManager extends Observable{
         }
     }
 
-    private void triggerObservers(long userId){
-        Log.e("TweetBO", "Notify Observers " + this.countObservers());
+    public void triggerObservers(Object userName){
         setChanged();
-        notifyObservers(userId);
+        notifyObservers(userName);
+//        for(Observer a : staticObservers){
+//            a.update(this, null);
+//        }
     }
 }

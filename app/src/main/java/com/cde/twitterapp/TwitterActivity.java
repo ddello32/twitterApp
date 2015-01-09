@@ -12,6 +12,8 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
 
 import com.cde.twitterapp.db.TweetDBManager;
 import com.cde.twitterapp.db.UserDbEntity;
@@ -25,14 +27,16 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.SystemService;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Set;
+
+import static android.widget.Toast.makeText;
 
 @EActivity(R.layout.activity_twitter)
 @OptionsMenu(R.menu.menu_twitter)
@@ -58,7 +62,7 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
     AccountManager accountManager;
     FragmentManager fm;
     ActionBar actionBar;
-    List<String> following = new ArrayList<String>();
+    ArrayList<String> following = new ArrayList<String>();
     ContentResolver mResolver;
     Account mAccount;
 
@@ -95,6 +99,7 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
                 continue;
             }
             ActionBar.Tab tab = actionBar.newTab().setText(user.getName()).setTabListener(new TabListener<TimelineTabFragment_>(this, TimelineTabFragment_.class, user, tweetDBManager));
+            tab.setTag(user.getUserName().toLowerCase());
             actionBar.addTab(tab);
         }
     }
@@ -114,6 +119,7 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 findContent("%" + s + "%");
+                actionSearch.collapseActionView();
                 return true;
             }
             @Override
@@ -129,6 +135,7 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
             @Override
             public boolean onQueryTextSubmit(String s) {
                 addUser(s);
+                actionAddUser.collapseActionView();
                 return true;
             }
             @Override
@@ -140,7 +147,7 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
 
     @Background
     public void findContent(String content){
-        TimelineTabFragment tabFragment = (TimelineTabFragment) fm.findFragmentByTag(following.get(actionBar.getSelectedTab().getPosition()));
+        TimelineTabFragment tabFragment = (TimelineTabFragment) fm.findFragmentByTag((String) actionBar.getSelectedTab().getTag());
         tabFragment.searchContent(content);
     }
 
@@ -156,12 +163,11 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
         }
         newset.add(content);
         prefs.edit().following().put(newset).apply();
+        manualUpdate();
     }
 
     @OptionsItem(R.id.action_update)
     void manualUpdate(){
-        tweetDBManager.id = 15;
-        Log.e("Activity BO_ID", "" + tweetDBManager.id);
         Log.e("Activity", "manual update");
         Bundle settingsBundle = new Bundle();
         settingsBundle.putBoolean(
@@ -172,15 +178,25 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
     }
 
     @Override
-    public void update(Observable observable, Object o) {
-        Log.e("Activity", "Notify");
-        if(actionBar != null && fm != null){
-            for(String userName : following) {
-                UserDbEntity user = tweetDBManager.getUser(userName);
-                if(user != null) {
-                    ActionBar.Tab tab = actionBar.newTab().setText(user.getName()).setTabListener(new TabListener<TimelineTabFragment_>(this, TimelineTabFragment_.class, user, tweetDBManager));
-                    actionBar.addTab(tab);
+    @UiThread
+    public void update(Observable observable, Object arg) {
+        if(arg != null && actionBar != null && fm != null){
+            UserDbEntity user = tweetDBManager.getUser((String) arg);
+            if(user != null) {
+                ActionBar.Tab tab = actionBar.newTab().setText(user.getName()).setTabListener(new TabListener<TimelineTabFragment_>(this, TimelineTabFragment_.class, user, tweetDBManager));
+                tab.setTag(user.getUserName().toLowerCase());
+                actionBar.addTab(tab);
+            }
+            else{
+                Set<String> set = prefs.following().get();
+                Set<String> newset = new HashSet<String>();
+                if(set != null) {
+                    for(String i: set) {
+                        if(i.equalsIgnoreCase((String) arg)) newset.add(i.toLowerCase());
+                    }
                 }
+                prefs.following().put(newset);
+                makeText(this, "User not found", Toast.LENGTH_SHORT);
             }
         }
 

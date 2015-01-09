@@ -3,6 +3,7 @@ package com.cde.twitterapp.rest;
 import org.androidannotations.annotations.rest.Get;
 import org.androidannotations.annotations.rest.RequiresAuthentication;
 import org.androidannotations.annotations.rest.Rest;
+import org.androidannotations.api.rest.RestClientErrorHandling;
 import org.springframework.http.HttpAuthentication;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
@@ -12,7 +13,7 @@ import java.util.List;
  * Created by dello on 05/01/15.
  */
 @Rest(rootUrl = "https://api.twitter.com/1.1", converters = { MappingJackson2HttpMessageConverter.class },  interceptors = {LoggerInterceptor.class})
-public interface TwitterRestClient {
+public interface TwitterRestClient extends RestClientErrorHandling {
     @Get("/statuses/user_timeline?user_id={id}&since_id={since_id}")
     @RequiresAuthentication
     List<TweetRestEntity> getUserTimeline(long id, long since_id);

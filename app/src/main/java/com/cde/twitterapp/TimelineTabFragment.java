@@ -10,6 +10,7 @@ import com.cde.twitterapp.db.UserDbEntity;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
+import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
 import java.util.Observable;
@@ -56,6 +57,7 @@ public class TimelineTabFragment extends Fragment implements Observer{
     }
 
     @Override
+    @UiThread
     public void update(Observable observable, Object o) {
         Log.e(user.getUserName(), "Update");
         if(!showingSearch) adapter.setTweets(user.getTweets());

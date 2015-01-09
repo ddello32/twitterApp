@@ -6,6 +6,7 @@ import com.cde.twitterapp.R;
 import com.cde.twitterapp.db.TweetDBManager;
 import com.cde.twitterapp.db.TweetDbEntity;
 import com.cde.twitterapp.db.UserDbEntity;
+import com.cde.twitterapp.rest.ErrorHandler;
 import com.cde.twitterapp.rest.TweetRestEntity;
 import com.cde.twitterapp.rest.TwitterApiAuth;
 import com.cde.twitterapp.rest.TwitterRestClient;
@@ -53,6 +54,7 @@ public class TimelineManager {
         if(!authHandler.isInitialized()){
             authHandler.initialize(consumerKey, consumerSecret);
             restClient.setAuthentication(authHandler);
+            restClient.setRestErrorHandler(new ErrorHandler());
         }
     }
 
@@ -66,6 +68,7 @@ public class TimelineManager {
 
     private void recoverUserTimeline(long userId, long sinceId){
         List<TweetRestEntity> page = restClient.getUserTimeline(userId, sinceId, REQUISITION_PAGE_SIZE);
+        if(page == null) return;
         long max_id = page.get(page.size() - 1).getId() - 1;
         while(page.size() != 0){
             max_id = page.get(page.size() - 1).getId() - 1;
@@ -76,11 +79,13 @@ public class TimelineManager {
                 tweetDBManager.addTweet(new TweetDbEntity(tweet.getId(), tweet.getText(), userDb, tweet.getDate()));
             }
             page = restClient.getUserTimeline(userId, sinceId, REQUISITION_PAGE_SIZE, max_id);
+            if(page == null) return;
         }
     }
 
     private void recoverUserTimeline(String userName, long sinceId){
         List<TweetRestEntity> page = restClient.getUserTimeline(userName, sinceId, REQUISITION_PAGE_SIZE);
+        if(page == null) return;
         long max_id;
         while(page.size() != 0){
             max_id = page.get(page.size() - 1).getId() - 1;
@@ -93,6 +98,7 @@ public class TimelineManager {
             }
             tweetDBManager.addTweets(newTweets);
             page = restClient.getUserTimeline(userName, sinceId, REQUISITION_PAGE_SIZE, max_id);
+            if(page == null) return;
         }
     }
 
@@ -124,7 +130,8 @@ public class TimelineManager {
         UserDbEntity user = tweetDBManager.getUser(userId);
         if(user == null){
             UserRestEntity restUser = restClient.getUser(userId);
-            tweetDBManager.addAuthor(new UserDbEntity(restUser.getId(), restUser.getName(), restUser.getScreenName(), restUser.getProfile_image()));
+            if(restUser != null)
+                tweetDBManager.addAuthor(new UserDbEntity(restUser.getId(), restUser.getName(), restUser.getScreenName(), restUser.getProfile_image()));
         }
     }
 
@@ -132,7 +139,9 @@ public class TimelineManager {
         UserDbEntity user = tweetDBManager.getUser(screenName);
         if(user == null){
             UserRestEntity restUser = restClient.getUser(screenName);
-            tweetDBManager.addAuthor(new UserDbEntity(restUser.getId(), restUser.getName(), restUser.getScreenName(), restUser.getProfile_image()));
+            if(restUser != null)
+                tweetDBManager.addAuthor(new UserDbEntity(restUser.getId(), restUser.getName(), restUser.getScreenName(), restUser.getProfile_image()));
+            else tweetDBManager.triggerObservers(screenName);
         }
     }
 

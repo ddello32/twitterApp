@@ -4,6 +4,7 @@ import org.androidannotations.annotations.rest.Post;
 import org.androidannotations.annotations.rest.RequiresAuthentication;
 import org.androidannotations.annotations.rest.RequiresHeader;
 import org.androidannotations.annotations.rest.Rest;
+import org.androidannotations.api.rest.RestClientErrorHandling;
 import org.springframework.http.converter.FormHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.MultiValueMap;
@@ -12,7 +13,7 @@ import org.springframework.util.MultiValueMap;
  * Created by dello on 06/01/15.
  */
 @Rest(rootUrl = "https://api.twitter.com", converters = { FormHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class }, interceptors = {LoggerInterceptor.class})
-interface TwitterAuthRestClient {
+interface TwitterAuthRestClient extends RestClientErrorHandling{
     @Post("/oauth2/token")
     @RequiresHeader("Content-Type")
     @RequiresAuthentication
