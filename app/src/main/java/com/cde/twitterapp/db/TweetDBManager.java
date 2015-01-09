@@ -23,12 +23,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Observable;
 
 /**
  * Created by dello on 01/01/15.
  */
-@EBean
-public class TweetBO {
+@EBean(scope = EBean.Scope.Singleton)
+public class TweetDBManager extends Observable{
     @OrmLiteDao(helper = DatabaseHelper.class)
     RuntimeExceptionDao<UserDbEntity, Integer> authorDao;
 
@@ -37,6 +38,10 @@ public class TweetBO {
 
     @RootContext
     Context context;
+
+    public int id = 0;
+
+
 
     public Collection<TweetDbEntity> getTweetsFromAuthor(UserDbEntity author){
         return authorDao.queryForSameId(author).getTweets();
@@ -97,17 +102,19 @@ public class TweetBO {
         for(TweetDbEntity tweet : tweets){
             addTweet(tweet);
         }
+        triggerObservers(-1);
     }
 
     @Background(serial = "DATABASE")
     public void addTweet(TweetDbEntity tweet){
-        addAuthor(tweet.getAuthorEntity());
+        //addAuthor(tweet.getAuthorEntity());
         tweetDao.createIfNotExists(tweet);
+        //triggerObservers(-1);
     }
 
     @Background(serial = "DATABASE")
     public void addAuthor(UserDbEntity author){
-        if(authorDao.queryForId((int) author.getId()) != null) return;
+        if(authorDao.queryForId((int) author.getId())!= null) return;
         InputStream input = null;
         File storagePath = new File(context.getFilesDir(), author.getName() + "tb.png");
         String uri = storagePath.getPath();
@@ -137,10 +144,15 @@ public class TweetBO {
         }
         author.setProfile_image_uri(uri);
         authorDao.create(author);
+        triggerObservers(author.getId());
     }
 
     public UserDbEntity getUser(long userId){
-        return authorDao.queryForId((int) userId);
+        try {
+            return authorDao.queryBuilder().where().eq(UserDbEntity.ID_COLUMN_NAME, userId).queryForFirst();
+        } catch (SQLException e) {
+            return null;
+        }
     }
 
     public UserDbEntity getUser(String screenName){
@@ -150,5 +162,11 @@ public class TweetBO {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void triggerObservers(long userId){
+        Log.e("TweetBO", "Notify Observers " + this.countObservers());
+        setChanged();
+        notifyObservers(userId);
     }
 }

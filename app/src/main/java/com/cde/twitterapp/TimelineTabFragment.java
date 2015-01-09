@@ -1,9 +1,10 @@
 package com.cde.twitterapp;
 
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.widget.ListView;
 
-import com.cde.twitterapp.db.TweetBO;
+import com.cde.twitterapp.db.TweetDBManager;
 import com.cde.twitterapp.db.UserDbEntity;
 
 import org.androidannotations.annotations.AfterViews;
@@ -11,11 +12,14 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  * Created by dello on 07/01/15.
  */
 @EFragment(R.layout.activity_twitter)
-public class TimelineTabFragment extends Fragment {
+public class TimelineTabFragment extends Fragment implements Observer{
     @ViewById
     ListView tweetList;
 
@@ -23,7 +27,7 @@ public class TimelineTabFragment extends Fragment {
     TweetListAdapter adapter;
 
     @Bean
-    TweetBO tweetBO;
+    TweetDBManager tweetDBManager;
 
     UserDbEntity user;
 
@@ -43,11 +47,7 @@ public class TimelineTabFragment extends Fragment {
     }
 
     void searchContent(String content){
-        adapter.setTweets(tweetBO.searchForContentFromUser(user, content));
-    }
-
-    void notifyDBUpdate(){
-        if(!showingSearch) adapter.setTweets(user.getTweets());
+        adapter.setTweets(tweetDBManager.searchForContentFromUser(user, content));
     }
 
     void finishSearch(){
@@ -55,4 +55,9 @@ public class TimelineTabFragment extends Fragment {
         showingSearch = false;
     }
 
+    @Override
+    public void update(Observable observable, Object o) {
+        Log.e(user.getUserName(), "Update");
+        if(!showingSearch) adapter.setTweets(user.getTweets());
+    }
 }

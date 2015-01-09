@@ -25,11 +25,13 @@ public class LoggerInterceptor implements ClientHttpRequestInterceptor {
         Log.d("Status", response.getStatusText());
         BufferedReader reader = new BufferedReader(new InputStreamReader(response.getBody()));
         String s = "";
-        String readed;
+        String readed = null;
         while ((readed = reader.readLine()) != null) {
             s += readed + "\n";
         }
         Log.d("Body", s);
+        //reader.reset();
+        reader.close();
         return execution.execute(request, body);
     }
 }

@@ -1,17 +1,12 @@
 package com.cde.twitterapp;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 
-import com.cde.twitterapp.db.TweetBO;
 import com.cde.twitterapp.db.TweetDbEntity;
 
-import org.androidannotations.annotations.AfterInject;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.UiThread;

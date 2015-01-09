@@ -13,9 +13,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.cde.twitterapp.db.TweetBO;
+import com.cde.twitterapp.db.TweetDBManager;
 import com.cde.twitterapp.db.UserDbEntity;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.AfterViews;
@@ -26,17 +25,18 @@ import org.androidannotations.annotations.OptionsItem;
 import org.androidannotations.annotations.OptionsMenu;
 import org.androidannotations.annotations.OptionsMenuItem;
 import org.androidannotations.annotations.SystemService;
-import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 
 @EActivity(R.layout.activity_twitter)
 @OptionsMenu(R.menu.menu_twitter)
-public class TwitterActivity extends ActionBarActivity {
+public class TwitterActivity extends ActionBarActivity implements Observer {
     //Update Constants
     public static final String AUTHORITY = "com.cde.twitterapp.provider";
     public static final String ACCOUNT = "default_account";
@@ -52,7 +52,7 @@ public class TwitterActivity extends ActionBarActivity {
     SearchView actionAddUserView = null;
 
     @Bean
-    TweetBO tweetBO;
+    TweetDBManager tweetDBManager;
 
     @SystemService
     AccountManager accountManager;
@@ -73,6 +73,7 @@ public class TwitterActivity extends ActionBarActivity {
                 following.add(userName);
             }
         }
+        tweetDBManager.addObserver(this);
     }
 
     @AfterInject
@@ -88,12 +89,12 @@ public class TwitterActivity extends ActionBarActivity {
         actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         for(String userName : following) {
-            UserDbEntity user = tweetBO.getUser(userName);
+            UserDbEntity user = tweetDBManager.getUser(userName);
             if(user == null){
                 manualUpdate();
-                user = tweetBO.getUser(userName);
+                continue;
             }
-            ActionBar.Tab tab = actionBar.newTab().setText(user.getName()).setTabListener(new TabListener<TimelineTabFragment_>(this, TimelineTabFragment_.class, user));
+            ActionBar.Tab tab = actionBar.newTab().setText(user.getName()).setTabListener(new TabListener<TimelineTabFragment_>(this, TimelineTabFragment_.class, user, tweetDBManager));
             actionBar.addTab(tab);
         }
     }
@@ -145,27 +146,22 @@ public class TwitterActivity extends ActionBarActivity {
 
     @Background
     public void addUser(String content){
-        if(following.contains(content)) return;
+        if(following.contains(content.toLowerCase())) return;
         Set<String> set = prefs.following().get();
         Set<String> newset = new HashSet<String>();
         if(set != null) {
             for(String user: set) {
-                newset.add(user);
+                newset.add(user.toLowerCase());
             }
         }
         newset.add(content);
         prefs.edit().following().put(newset).apply();
     }
 
-    //TODO think this over
-    @UiThread(propagation = UiThread.Propagation.REUSE)
-    public void notifyTimelineChange(long userId){
-        //TODO Choose correct tab
-        //TimelineTabFragment tabFragment = (TimelineTabFragment) fm.findFragmentByTag();
-    }
-
     @OptionsItem(R.id.action_update)
     void manualUpdate(){
+        tweetDBManager.id = 15;
+        Log.e("Activity BO_ID", "" + tweetDBManager.id);
         Log.e("Activity", "manual update");
         Bundle settingsBundle = new Bundle();
         settingsBundle.putBoolean(
@@ -173,5 +169,26 @@ public class TwitterActivity extends ActionBarActivity {
         settingsBundle.putBoolean(
                 ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(mAccount, AUTHORITY, settingsBundle);
+    }
+
+    @Override
+    public void update(Observable observable, Object o) {
+        Log.e("Activity", "Notify");
+        if(actionBar != null && fm != null){
+            for(String userName : following) {
+                UserDbEntity user = tweetDBManager.getUser(userName);
+                if(user != null) {
+                    ActionBar.Tab tab = actionBar.newTab().setText(user.getName()).setTabListener(new TabListener<TimelineTabFragment_>(this, TimelineTabFragment_.class, user, tweetDBManager));
+                    actionBar.addTab(tab);
+                }
+            }
+        }
+
+    }
+
+    @Override
+    public void onDestroy(){
+        tweetDBManager.deleteObserver(this);
+        super.onDestroy();
     }
 }
