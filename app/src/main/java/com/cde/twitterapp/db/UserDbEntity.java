@@ -1,16 +1,17 @@
 package com.cde.twitterapp.db;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.io.Serializable;
 
 /**
+ * Model for Twitter user entities to be stored in local db.
  * Created by dello on 31/12/14.
- * Just a test model. Should change once using twitter api
  */
+@DatabaseTable(tableName = "users")
 public class UserDbEntity implements Serializable{
     static final String ID_COLUMN_NAME = "id";
     static final String NAME_COLUMN_NAME = "name";
@@ -46,11 +47,10 @@ public class UserDbEntity implements Serializable{
     }
 
     /**
-     *
-     * @param id
+     * @param id Same as Twitter's user id
      * @param name
-     * @param userName
-     * @param profile_image_url
+     * @param userName Twitter's Screen Name
+     * @param profile_image_url URL for users profile image
      */
     public UserDbEntity(long id, String name, String userName, String profile_image_url){
         this.setId(id);

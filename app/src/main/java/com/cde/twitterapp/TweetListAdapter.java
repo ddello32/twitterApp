@@ -19,7 +19,7 @@ import java.util.Collection;
  */
 @EBean
 public class TweetListAdapter extends BaseAdapter{
-    ArrayList<TweetDbEntity> tweets = new ArrayList<TweetDbEntity>();;
+    private ArrayList<TweetDbEntity> tweets = new ArrayList<TweetDbEntity>();;
 
     @RootContext
     Context context;
@@ -58,4 +58,6 @@ public class TweetListAdapter extends BaseAdapter{
 
         return tweetItemView;
     }
+
+    public ArrayList<TweetDbEntity> getTweets(){ return tweets; }
 }

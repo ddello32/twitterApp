@@ -10,6 +10,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.util.MultiValueMap;
 
 /**
+ * Rest client for twitter's API Oauth2 app authentication.
  * Created by dello on 06/01/15.
  */
 @Rest(rootUrl = "https://api.twitter.com", converters = { FormHttpMessageConverter.class, MappingJackson2HttpMessageConverter.class }, interceptors = {LoggerInterceptor.class})

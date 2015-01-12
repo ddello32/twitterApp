@@ -12,7 +12,6 @@ import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.cde.twitterapp.db.TweetDBManager;
@@ -95,12 +94,12 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
         for(String userName : following) {
             UserDbEntity user = tweetDBManager.getUser(userName);
             if(user == null){
-                manualUpdate();
-                continue;
+                manualSyncRequest();
+            }else {
+                ActionBar.Tab tab = actionBar.newTab().setText(user.getName()).setTabListener(new TabListener<TimelineTabFragment_>(this, TimelineTabFragment_.class, user, tweetDBManager));
+                tab.setTag(user.getUserName().toLowerCase());
+                actionBar.addTab(tab);
             }
-            ActionBar.Tab tab = actionBar.newTab().setText(user.getName()).setTabListener(new TabListener<TimelineTabFragment_>(this, TimelineTabFragment_.class, user, tweetDBManager));
-            tab.setTag(user.getUserName().toLowerCase());
-            actionBar.addTab(tab);
         }
     }
 
@@ -148,7 +147,7 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
     @Background
     public void findContent(String content){
         TimelineTabFragment tabFragment = (TimelineTabFragment) fm.findFragmentByTag((String) actionBar.getSelectedTab().getTag());
-        tabFragment.searchContent(content);
+        if(tabFragment != null) tabFragment.searchContent(content);
     }
 
     @Background
@@ -163,11 +162,11 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
         }
         newset.add(content);
         prefs.edit().following().put(newset).apply();
-        manualUpdate();
+        manualSyncRequest();
     }
 
     @OptionsItem(R.id.action_update)
-    void manualUpdate(){
+    void manualSyncRequest(){
         Log.e("Activity", "manual update");
         Bundle settingsBundle = new Bundle();
         settingsBundle.putBoolean(
@@ -175,6 +174,12 @@ public class TwitterActivity extends ActionBarActivity implements Observer {
         settingsBundle.putBoolean(
                 ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         ContentResolver.requestSync(mAccount, AUTHORITY, settingsBundle);
+    }
+
+    @OptionsItem(R.id.action_map)
+    void showMap(){
+        TimelineTabFragment tabFragment = (TimelineTabFragment) fm.findFragmentByTag((String) actionBar.getSelectedTab().getTag());
+        if(tabFragment != null) MapActivity_.intent(this).markers(tabFragment.getMarkers()).start();
     }
 
     @Override

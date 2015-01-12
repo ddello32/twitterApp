@@ -4,6 +4,7 @@ import org.androidannotations.api.rest.RestErrorHandler;
 import org.springframework.core.NestedRuntimeException;
 
 /**
+ * Stub error handler
  * Created by dello on 09/01/15.
  */
 public class ErrorHandler implements RestErrorHandler {

@@ -1,8 +1,7 @@
 package com.cde.twitterapp.sync;
 
-import android.util.Log;
-
 import com.cde.twitterapp.R;
+import com.cde.twitterapp.TwitterAppPreferences_;
 import com.cde.twitterapp.db.TweetDBManager;
 import com.cde.twitterapp.db.TweetDbEntity;
 import com.cde.twitterapp.db.UserDbEntity;
@@ -11,7 +10,6 @@ import com.cde.twitterapp.rest.TweetRestEntity;
 import com.cde.twitterapp.rest.TwitterApiAuth;
 import com.cde.twitterapp.rest.TwitterRestClient;
 import com.cde.twitterapp.rest.UserRestEntity;
-import com.cde.twitterapp.TwitterAppPreferences_;
 
 import org.androidannotations.annotations.AfterInject;
 import org.androidannotations.annotations.Bean;
@@ -76,7 +74,7 @@ public class TimelineManager {
                 //TODO: Turn this into a batch operation
                 UserRestEntity userRest = tweet.getAuthor();
                 UserDbEntity userDb = new UserDbEntity(userRest.getId(), userRest.getName(), userRest.getScreenName(), userRest.getProfile_image());
-                tweetDBManager.addTweet(new TweetDbEntity(tweet.getId(), tweet.getText(), userDb, tweet.getDate()));
+                tweetDBManager.addTweet(new TweetDbEntity(tweet.getId(), tweet.getText(), userDb, tweet.getDate(), tweet.getLocation()==null?null:tweet.getLocation().getCoordinates()));
             }
             page = restClient.getUserTimeline(userId, sinceId, REQUISITION_PAGE_SIZE, max_id);
             if(page == null) return;
@@ -94,7 +92,7 @@ public class TimelineManager {
                 //TODO: Turn this into a batch operation
                 UserRestEntity userRest = tweet.getAuthor();
                 UserDbEntity userDb = new UserDbEntity(userRest.getId(), userRest.getName(), userRest.getScreenName(), userRest.getProfile_image());
-                newTweets.add(new TweetDbEntity(tweet.getId(), tweet.getText(), userDb, tweet.getDate()));
+                newTweets.add(new TweetDbEntity(tweet.getId(), tweet.getText(), userDb, tweet.getDate(), tweet.getLocation()==null?null:tweet.getLocation().getCoordinates()));
             }
             tweetDBManager.addTweets(newTweets);
             page = restClient.getUserTimeline(userName, sinceId, REQUISITION_PAGE_SIZE, max_id);
@@ -146,7 +144,6 @@ public class TimelineManager {
     }
 
     public void updateDB(){
-        Log.e("BO_ID", "" + tweetDBManager.id);
         users.clear();
         for(String userName : prefs.following().get()){
             users.add(userName);

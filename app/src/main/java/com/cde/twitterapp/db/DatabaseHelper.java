@@ -1,26 +1,25 @@
 package com.cde.twitterapp.db;
 
 import android.content.Context;
-import java.sql.SQLException;
-
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.cde.twitterapp.TwitterAppPreferences_;
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.table.TableUtils;
 
 import org.androidannotations.annotations.EBean;
-import org.androidannotations.annotations.sharedpreferences.Pref;
+
+import java.sql.SQLException;
 
 /**
+ * Database helper class
  * Created by dello on 31/12/14.
  */
 @EBean
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String DATABASE_NAME = "twitter_app.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 7;
 
     //RuntimeExceptionDao<TweetDbEntity, Integer> tweetDao;
     //RuntimeExceptionDao<UserDbEntity, Integer> authorDao;
@@ -48,6 +47,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     /**
      * Update database, for now just delete and start over.
      */
+    //TODO Really update, not drop everything and start over
     public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
             TableUtils.dropTable(connectionSource, TweetDbEntity.class, true);

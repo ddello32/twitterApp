@@ -6,14 +6,18 @@
     <item android:id="@+id/action_search" android:title="@string/abc_searchview_description_search"
          android:icon="@drawable/abc_ic_search_api_mtrl_alpha" app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
-    <item android:id="@+id/action_update"
-        android:icon="@drawable/update"
-        android:title="@string/action_update"
-        app:showAsAction="ifRoom"  />
     <item android:id="@+id/action_add_user"
         android:icon="@drawable/abc_ic_menu_selectall_mtrl_alpha"
         android:title="@string/action_add_user"
         app:showAsAction="ifRoom|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView"/>
+    <item android:id="@+id/action_update"
+        android:icon="@drawable/update"
+        android:title="@string/action_update"
+        app:showAsAction="ifRoom"  />
+    <item android:id="@+id/action_map"
+        android:icon="@drawable/ic_launcher"
+        android:title="@string/action_map"
+        app:showAsAction="ifRoom"  />
 
 </menu>

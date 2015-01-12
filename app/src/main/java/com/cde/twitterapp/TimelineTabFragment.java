@@ -5,7 +5,10 @@ import android.util.Log;
 import android.widget.ListView;
 
 import com.cde.twitterapp.db.TweetDBManager;
+import com.cde.twitterapp.db.TweetDbEntity;
 import com.cde.twitterapp.db.UserDbEntity;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
@@ -13,6 +16,7 @@ import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -56,10 +60,32 @@ public class TimelineTabFragment extends Fragment implements Observer{
         showingSearch = false;
     }
 
+    ArrayList<MarkerOptions> getMarkers(){
+        ArrayList<MarkerOptions> markers = new ArrayList<MarkerOptions>();
+        for(TweetDbEntity tweet : adapter.getTweets()){
+            if(tweet.isChecked()){
+                markers.add(
+                        new MarkerOptions().position(
+                                new LatLng(
+                                        tweet.getLocation().get(1),tweet.getLocation().get(0)
+                                )
+                        ).title(
+                                tweet.getAuthorEntity().getName()
+                        ).snippet(tweet.getText())
+                );
+            }
+        }
+        return markers;
+    }
+
     @Override
     @UiThread
     public void update(Observable observable, Object o) {
         Log.e(user.getUserName(), "Update");
         if(!showingSearch) adapter.setTweets(user.getTweets());
+    }
+
+    public void persistChecked(){
+        tweetDBManager.updateTweets(adapter.getTweets());
     }
 }

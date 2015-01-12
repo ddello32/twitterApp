@@ -1,33 +1,28 @@
 package com.cde.twitterapp.db;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.SelectArg;
 
 import org.androidannotations.annotations.Background;
-import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.OrmLiteDao;
 import org.androidannotations.annotations.RootContext;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Observable;
-import java.util.Observer;
 
 /**
+ * Manages all iteration with local db.
  * Created by dello on 01/01/15.
  */
 @EBean(scope = EBean.Scope.Singleton)
@@ -41,14 +36,18 @@ public class TweetDBManager extends Observable{
     @RootContext
     Context context;
 
-    public int id = 0;
-
-
-
+    /**
+     * @param author User entity
+     * @return Collection with all tweets from this author.
+     */
     public Collection<TweetDbEntity> getTweetsFromAuthor(UserDbEntity author){
         return authorDao.queryForSameId(author).getTweets();
     }
 
+    /**
+     * @param id author's id
+     * @return Collection with all tweets from this author.
+     */
     public Collection<TweetDbEntity> getTweetsFromAuthor(long id){
         //TODO See this long/int problem.
         UserDbEntity author = getUser(id);
@@ -56,6 +55,11 @@ public class TweetDBManager extends Observable{
         return author.getTweets();
     }
 
+    /**
+     *
+     * @param screenName User's screenName
+     * @return Collection with all tweets from this author.
+     */
     public Collection<TweetDbEntity> getTweetsFromAuthor(String screenName){
         //TODO See this long/int problem.
         UserDbEntity author = getUser(screenName);
@@ -63,6 +67,11 @@ public class TweetDBManager extends Observable{
         return author.getTweets();
     }
 
+    /**
+     * Queries for tweets in all of the database
+     * @param content Substring to be located
+     * @return A Collection of tweets whose text contains the substring content/
+     */
     public Collection<TweetDbEntity> searchForContent(String content){
         Collection<TweetDbEntity> ret;
         try{
@@ -75,6 +84,11 @@ public class TweetDBManager extends Observable{
         return ret;
     }
 
+    /**
+     * Queries for tweets in a user's timeline
+     * @param content Substring to be located
+     * @return A Collection of tweets from user whose text contains the substring content.
+     */
     public Collection<TweetDbEntity> searchForContentFromUser(UserDbEntity user, String content){
         Collection<TweetDbEntity> ret;
         try{
@@ -87,6 +101,10 @@ public class TweetDBManager extends Observable{
         return ret;
     }
 
+    /**
+     *
+     * @return All tweets stored in the local db.
+     */
     public Collection<TweetDbEntity> getAllTweets(){
         Collection<TweetDbEntity> ret;
         try{
@@ -98,6 +116,10 @@ public class TweetDBManager extends Observable{
         return ret;
     }
 
+    /**
+     * Adds a collection of tweets to the local db and notifies observers (with null argument).
+     * @param tweets Collection of tweets to be added
+     */
     @Background(serial = "DATABASE")
     public void addTweets(Collection<TweetDbEntity> tweets) {
         //TODO: Make this a batch operation.
@@ -107,6 +129,10 @@ public class TweetDBManager extends Observable{
         triggerObservers(null);
     }
 
+    /**
+     * Adds a single tweet to the local db and notifies observers (with null argument).
+     * @param tweet Tweets to be added
+     */
     @Background(serial = "DATABASE")
     public void addTweet(TweetDbEntity tweet){
         //addAuthor(tweet.getAuthorEntity());
@@ -114,6 +140,10 @@ public class TweetDBManager extends Observable{
         triggerObservers(null);
     }
 
+    /**
+     * Add's an user to the local database and notifies observers (with the user's screenName as arg).
+     * @param author User to be added
+     */
     @Background(serial = "DATABASE")
     public void addAuthor(UserDbEntity author){
         if(authorDao.queryForId((int) author.getId())!= null) return;
@@ -123,8 +153,6 @@ public class TweetDBManager extends Observable{
         try {
             URL url = new URL (author.getProfile_image_url());
             input = url.openStream();
-            //The sdcard directory e.g. '/sdcard' can be used directly, or
-            //more safely abstracted with getExternalStorageDirectory()
             OutputStream output = new FileOutputStream(uri);
             try {
                 byte[] buffer = new byte[100000];
@@ -149,6 +177,11 @@ public class TweetDBManager extends Observable{
         triggerObservers(author.getUserName());
     }
 
+    /**
+     * Queries for an specific user in the local db
+     * @param userId User id in Twitter's db
+     * @return User whose id equals userId
+     */
     public UserDbEntity getUser(long userId){
         try {
             return authorDao.queryBuilder().where().eq(UserDbEntity.ID_COLUMN_NAME, userId).queryForFirst();
@@ -157,6 +190,11 @@ public class TweetDBManager extends Observable{
         }
     }
 
+    /**
+     * Queries for an specific user in the local db
+     * @param screenName Twitter's screenName for the user
+     * @return User whose userName equals screenName
+     */
     public UserDbEntity getUser(String screenName){
         try {
             return authorDao.queryBuilder().where().like(UserDbEntity.USERNAME_COLUMN_NAME, screenName).queryForFirst();
@@ -166,11 +204,41 @@ public class TweetDBManager extends Observable{
         }
     }
 
+    /**
+     * Notifies observer's of data changed
+     * @param userName Argument to be passed to observers so they know which user has been updated
+     */
     public void triggerObservers(Object userName){
         setChanged();
         notifyObservers(userName);
-//        for(Observer a : staticObservers){
-//            a.update(this, null);
-//        }
+    }
+
+    /**
+     * Persists the changes done to a Tweet into the local db and notifies observers
+     * @param tweet Tweet to be persisted
+     */
+    public void updateTweet(TweetDbEntity tweet){
+        tweetDao.update(tweet);
+        triggerObservers(null);
+    }
+
+    /**
+     * Persists the changes done to a Collection of Tweet into the local db and notifies observers
+     * @param tweets Collection of tweets to be be persisted
+     */
+    public void updateTweets(Collection<TweetDbEntity> tweets){
+        for(TweetDbEntity tweet : tweets){
+            tweetDao.update(tweet);
+        }
+        triggerObservers(null);
+    }
+
+    /**
+     * Persists the changes done to an user entity into the local db
+     * @param user User entity to be persisted
+     */
+    public void updateUser(UserDbEntity user){
+        authorDao.update(user);
+        triggerObservers(user.getUserName());
     }
 }

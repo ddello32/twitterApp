@@ -10,39 +10,40 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import java.util.List;
 
 /**
+ * Client for Twitter's REST api.
  * Created by dello on 05/01/15.
  */
 @Rest(rootUrl = "https://api.twitter.com/1.1", converters = { MappingJackson2HttpMessageConverter.class },  interceptors = {LoggerInterceptor.class})
 public interface TwitterRestClient extends RestClientErrorHandling {
-    @Get("/statuses/user_timeline?user_id={id}&since_id={since_id}")
+    @Get("/statuses/user_timeline?user_id={id}&since_id={since_id}&trim_user=true&exclude_replies=true&contributor_details=false")
     @RequiresAuthentication
     List<TweetRestEntity> getUserTimeline(long id, long since_id);
 
-    @Get("/statuses/user_timeline?screen_name={screenName}&since_id={since_id}")
+    @Get("/statuses/user_timeline?screen_name={screenName}&since_id={since_id}&trim_user=true&exclude_replies=true&contributor_details=false")
     @RequiresAuthentication
     List<TweetRestEntity> getUserTimeline(String screenName, long since_id);
 
-    @Get("/statuses/user_timeline?user_id={id}&since_id={since_id}&count={count}")
+    @Get("/statuses/user_timeline?user_id={id}&since_id={since_id}&count={count}&trim_user=true&exclude_replies=true&contributor_details=false")
     @RequiresAuthentication
     List<TweetRestEntity> getUserTimeline(long id, long since_id, int count);
 
-    @Get("/statuses/user_timeline?screen_name={screenName}&since_id={since_id}&count={count}")
+    @Get("/statuses/user_timeline?screen_name={screenName}&since_id={since_id}&count={count}&trim_user=true&exclude_replies=true&contributor_details=false")
     @RequiresAuthentication
     List<TweetRestEntity> getUserTimeline(String screenName, long since_id, int count);
 
-    @Get("/statuses/user_timeline?user_id={id}&since_id={since_id}&count={count}&max_id={max_id}")
+    @Get("/statuses/user_timeline?user_id={id}&since_id={since_id}&count={count}&max_id={max_id}&trim_user=true&exclude_replies=true&contributor_details=false")
     @RequiresAuthentication
     List<TweetRestEntity> getUserTimeline(long id, long since_id, int count, long max_id);
 
-    @Get("/statuses/user_timeline?screen_name={screenName}&since_id={since_id}&count={count}&max_id={max_id}")
+    @Get("/statuses/user_timeline?screen_name={screenName}&since_id={since_id}&count={count}&max_id={max_id}&trim_user=true&exclude_replies=true&contributor_details=false")
     @RequiresAuthentication
     List<TweetRestEntity> getUserTimeline(String screenName, long since_id, int count, long max_id);
 
-    @Get("/users/show?screen_name={screenName}")
+    @Get("/users/show?screen_name={screenName}&include_entities=false")
     @RequiresAuthentication
     UserRestEntity getUser(String screenName);
 
-    @Get("/users/show?user_id={userId}")
+    @Get("/users/show?user_id={userId}&include_entities=false")
     @RequiresAuthentication
     UserRestEntity getUser(long userId);
 

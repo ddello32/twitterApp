@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 
 /**
+ * Model for a user entity from Twitter's rest api.
  * Created by dello on 06/01/15.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

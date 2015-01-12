@@ -8,5 +8,6 @@
     <string name="consumerSecret">XuW9tzhXqW7AXEfP0YMbYyO1lnTHA6eRfjnFAbwH0qX0pQlLBx</string>
     <string name="action_update">Update</string>
     <string name="action_add_user">Add User</string>
+    <string name="action_map">Show in map</string>
     <string name="account_type">com.cde.test</string>
 </resources>

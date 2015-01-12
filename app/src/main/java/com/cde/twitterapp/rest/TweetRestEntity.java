@@ -4,9 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
+ * Model for a tweet entity from Twitter's rest api.
  * Created by dello on 06/01/15.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -17,6 +17,8 @@ public class TweetRestEntity implements Serializable {
     UserRestEntity author;
     @JsonProperty("created_at")
     String date;
+    @JsonProperty("coordinates")
+    CoordinateRestEntity location;
 
     public long getId() {
         return id;
@@ -48,5 +50,13 @@ public class TweetRestEntity implements Serializable {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public CoordinateRestEntity getLocation() {
+        return location;
+    }
+
+    public void setLocation(CoordinateRestEntity location) {
+        this.location = location;
     }
 }

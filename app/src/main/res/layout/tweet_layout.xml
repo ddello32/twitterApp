@@ -46,11 +46,19 @@
             android:text="Small Text"
             android:id="@+id/tweetDate"
             android:textStyle="italic"
-            android:layout_below="@+id/tweetContent"
+            android:layout_below="@+id/checkBox"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
             android:textColor="#ff000000" />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/checkBox"
+            android:layout_below="@+id/tweetContent"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
 </LinearLayout>

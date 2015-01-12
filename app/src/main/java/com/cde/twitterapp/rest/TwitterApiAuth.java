@@ -12,6 +12,8 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.UnsupportedEncodingException;
 /**
+ * Authentication client for twitter's api Oauth2's application authentication.
+ * Must be initialized before use.
  * Created by dello on 06/01/15.
  */
 @EBean
@@ -26,6 +28,11 @@ public class TwitterApiAuth extends HttpAuthentication {
     private TokenAuthEntity bearerToken;
     private boolean initialized = false;
 
+    /**
+     * Request's bearer token and stores it
+     * @param consumerKey App's consumer key
+     * @param consumerSecret App's consumer secret
+     */
     public void initialize(String consumerKey, String consumerSecret) {
         Log.e("TwitterAuth", "initialize");
         this.consumerKey = consumerKey;
@@ -53,6 +60,7 @@ public class TwitterApiAuth extends HttpAuthentication {
         }
         return String.format("Bearer %s", bearerToken.accessToken);
     }
+
     @Override
     public String toString() {
         String s = null;
@@ -64,6 +72,9 @@ public class TwitterApiAuth extends HttpAuthentication {
         return s;
     }
 
+    /**
+     * @return If this authenticator has been initialized and holds a bearer token
+     */
     public boolean isInitialized(){
         return initialized;
     }
